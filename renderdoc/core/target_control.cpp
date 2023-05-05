@@ -129,12 +129,14 @@ void RenderDoc::TargetControlClientThread(uint32_t version, Network::Socket *cli
 
   rdcstr target = RenderDoc::Inst().GetCurrentTarget();
   uint32_t mypid = Process::GetCurrentPID();
+  rdcstr procName = Process::GetProcessName();
 
   {
     WRITE_DATA_SCOPE();
     SCOPED_SERIALISE_CHUNK(ePacket_Handshake);
     SERIALISE_ELEMENT(TargetControlProtocolVersion);
     SERIALISE_ELEMENT(target);
+    SERIALISE_ELEMENT(procName);
     SERIALISE_ELEMENT(mypid);
   }
 
@@ -531,10 +533,12 @@ void RenderDoc::TargetControlServerThread(Network::Socket *sock)
       ser.SetStreamingMode(true);
 
       rdcstr target = RenderDoc::Inst().GetCurrentTarget();
+      rdcstr procName = Process::GetProcessName();
       {
         SCOPED_SERIALISE_CHUNK(ePacket_Busy);
         SERIALISE_ELEMENT(TargetControlProtocolVersion);
         SERIALISE_ELEMENT(target);
+        SERIALISE_ELEMENT(procName);
         SERIALISE_ELEMENT(RenderDoc::Inst().m_SingleClientName);
       }
 
@@ -609,6 +613,7 @@ public:
       READ_DATA_SCOPE();
       SERIALISE_ELEMENT(m_Version);
       SERIALISE_ELEMENT(m_Target);
+      SERIALISE_ELEMENT(m_ProcName);
       SERIALISE_ELEMENT(m_PID);
     }
 
@@ -639,6 +644,7 @@ public:
     delete this;
   }
 
+  rdcstr GetProcName() { return m_ProcName; }
   rdcstr GetTarget() { return m_Target; }
   rdcstr GetAPI() { return m_API; }
   uint32_t GetPID() { return m_PID; }
@@ -947,7 +953,7 @@ private:
   Network::Socket *m_Socket;
   WriteSerialiser writer;
   ReadSerialiser reader;
-  rdcstr m_Target, m_API, m_BusyClient;
+  rdcstr m_Target, m_API, m_BusyClient, m_ProcName;
   uint32_t m_Version, m_PID;
 
   std::map<uint32_t, rdcstr> m_CaptureCopies;

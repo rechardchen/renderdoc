@@ -1147,6 +1147,10 @@ HOOK_EXPORT void AndroidGLESLayer_Initialize(void *layer_id,
 HOOK_EXPORT void *AndroidGLESLayer_GetProcAddress(const char *funcName,
                                                   __eglMustCastToProperFunctionPointerType next)
 {
+  //filter the process we want to hook
+  if(!RenderDoc::Inst().ShouldHookGraphics())
+    return (void*)next;
+
 // return our egl hooks
 #define GPA_FUNCTION(name, isext, replayrequired) \
   if(!strcmp(funcName, "egl" STRINGIZE(name)))    \

@@ -51,6 +51,12 @@ void library_loaded()
 
     rdcstr capturefile = Process::GetEnvVariable("RENDERDOC_CAPFILE");
     rdcstr opts = Process::GetEnvVariable("RENDERDOC_CAPOPTS");
+    rdcstr procfilter = Process::GetEnvVariable("RENDERDOC_PROCESS_FILTER");
+
+    if(!procfilter.empty())
+    {
+      RenderDoc::Inst().SetProcessFilter(procfilter);
+    }
 
     if(!opts.empty())
     {

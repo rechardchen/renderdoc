@@ -250,9 +250,10 @@ void RemoteManager::refreshHost(RDTreeWidgetItem *node)
 
       if(conn)
       {
-        QString target = conn->GetTarget();
         QString api = conn->GetAPI();
         QString busy = conn->GetBusyClient();
+
+        QString target = conn->GetProcName();
 
         QString running;
 

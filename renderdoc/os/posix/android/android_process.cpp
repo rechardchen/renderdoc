@@ -23,6 +23,7 @@
  ******************************************************************************/
 
 #include <unistd.h>
+#include <fcntl.h>
 #include "common/common.h"
 #include "common/formatting.h"
 #include "os/os_specific.h"
@@ -195,4 +196,23 @@ uint64_t Process::GetMemoryUsage()
     return vmPages * (uint64_t)sysconf(_SC_PAGESIZE);
 
   return 0;
+}
+
+rdcstr Process::GetProcessName()
+{
+  rdcstr procName;
+  int fd = open(StringFormat::Fmt("/proc/%u/cmdline", getpid()).c_str(), O_RDONLY);
+  if(fd < 0)
+    return procName;
+
+  char buf[4096];
+  ssize_t len = read(fd, buf, sizeof(buf));
+  close(fd);
+  if(len < 0 || len == sizeof(buf))
+  {
+    return procName;
+  }
+
+  procName = buf;
+  return procName;
 }

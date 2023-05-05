@@ -1091,6 +1091,8 @@ struct ITargetControl
 )");
   virtual rdcstr GetTarget() = 0;
 
+  virtual rdcstr GetProcName() = 0;
+
   DOCUMENT(R"(Retrieves the API currently in use by the target.
 
 :return: The API name, or empty if no API is initialised yet.

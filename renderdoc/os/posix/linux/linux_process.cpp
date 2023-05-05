@@ -45,7 +45,7 @@
 RDOC_CONFIG(bool, Linux_PtraceChildProcesses, true,
             "Use ptrace(2) to trace child processes at startup to ensure connection is made as "
             "early as possible.");
-RDOC_CONFIG(bool, Linux_Debug_PtraceLogging, false,
+RDOC_CONFIG(bool, Linux_Debug_PtraceLogging, true,
             "Enable verbose debug logging of ptrace usage.");
 
 extern char **environ;

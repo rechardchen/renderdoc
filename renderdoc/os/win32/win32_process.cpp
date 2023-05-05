@@ -1745,3 +1745,11 @@ void Process::Shutdown()
 {
   // nothing to do
 }
+
+rdcstr Process::GetProcessName()
+{
+  // TODO: return more accurate process name
+  rdcstr procName;
+  FileIO::GetExecutableFilename(procName);
+  return procName;
+}

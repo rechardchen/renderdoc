@@ -1817,6 +1817,15 @@ void RenderDoc::EnableVendorExtensions(VendorExtensions ext)
   RDCWARN("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 }
 
+void RenderDoc::SetProcessFilter(const rdcstr &filter)
+{
+  rdcstr processName = Process::GetProcessName();
+  m_ShouldHookGraphics = (processName.find(filter) != -1);
+
+  RDCLOG("RenderDoc::SetProcessFilter(%s) ProcessName=%s shouldHookGraphics=%s", filter.c_str(), processName.c_str(), m_ShouldHookGraphics ? "true" : "false");
+}
+
+
 void RenderDoc::SetCaptureOptions(const CaptureOptions &opts)
 {
   m_Options = opts;

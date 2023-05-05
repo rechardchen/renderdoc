@@ -88,6 +88,7 @@ void *GetFunctionAddress(void *module, const rdcstr &function);
 uint32_t GetCurrentPID();
 
 void Shutdown();
+rdcstr GetProcessName();
 };
 
 namespace Timing

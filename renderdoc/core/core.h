@@ -476,6 +476,9 @@ public:
   bool IsVendorExtensionEnabled(VendorExtensions ext) { return m_VendorExts[(int)ext]; }
   void EnableVendorExtensions(VendorExtensions ext);
 
+  void SetProcessFilter(const rdcstr &filter);
+  bool ShouldHookGraphics() const { return m_ShouldHookGraphics; }
+
   void SetCaptureOptions(const CaptureOptions &opts);
   const CaptureOptions &GetCaptureOptions() const { return m_Options; }
   void RecreateCrashHandler();
@@ -631,6 +634,7 @@ private:
 
   bool m_PrevFocus = false;
   bool m_PrevCap = false;
+  bool m_ShouldHookGraphics = true; //should we hook graphics APIs or nots
 
   rdcarray<RENDERDOC_InputButton> m_FocusKeys;
   rdcarray<RENDERDOC_InputButton> m_CaptureKeys;

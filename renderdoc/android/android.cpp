@@ -53,10 +53,13 @@ void adbForwardPorts(uint16_t portbase, const rdcstr &deviceID, uint16_t jdwpPor
                  StringFormat::Fmt(forwardCommand, portbase + RenderDoc_ForwardRemoteServerOffset,
                                    RenderDoc_RemoteServerPort),
                  ".", silent);
-  adbExecCommand(deviceID,
-                 StringFormat::Fmt(forwardCommand, portbase + RenderDoc_ForwardTargetControlOffset,
-                                   RenderDoc_FirstTargetControlPort),
-                 ".", silent);
+
+  for(int p = RenderDoc_FirstTargetControlPort; p <= RenderDoc_LastTargetControlPort; p++)
+  {
+    adbExecCommand(deviceID,
+                   StringFormat::Fmt(forwardCommand, portbase + RenderDoc_ForwardTargetControlOffset + p - RenderDoc_FirstTargetControlPort, p),
+                   ".", silent);    
+  }
 
   if(jdwpPort && pid)
     adbExecCommand(deviceID, StringFormat::Fmt("forward tcp:%hu jdwp:%i", jdwpPort, pid));
@@ -1120,8 +1123,10 @@ struct AndroidController : public IDeviceProtocolHandler
     if(srcPort == RenderDoc_RemoteServerPort)
       return portbase + RenderDoc_ForwardRemoteServerOffset;
     // we only support a single target control connection on android
-    else if(srcPort == RenderDoc_FirstTargetControlPort)
-      return portbase + RenderDoc_ForwardTargetControlOffset;
+    else if(RenderDoc_FirstTargetControlPort <= srcPort && srcPort <= RenderDoc_LastTargetControlPort)
+      return portbase + RenderDoc_ForwardTargetControlOffset + srcPort - RenderDoc_FirstTargetControlPort;
+    //else if(srcPort == RenderDoc_FirstTargetControlPort)
+    //  return portbase + RenderDoc_ForwardTargetControlOffset;
 
     return 0;
   }
@@ -1185,7 +1190,7 @@ ExecuteResult AndroidRemoteServer::ExecuteAndInject(const rdcstr &packageAndActi
   RDResult result;
   uint32_t ident = RenderDoc_FirstTargetControlPort;
 
-  AndroidController::m_Inst.Invoke([this, &result, &ident, packageAndActivity, intentArgs, opts]() {
+  AndroidController::m_Inst.Invoke([this, &result, &ident, packageAndActivity, intentArgs, opts, env]() {
     rdcstr packageName =
         Android::GetPackageName(packageAndActivity);    // Remove leading '/' if any
 
@@ -1329,6 +1334,17 @@ ExecuteResult AndroidRemoteServer::ExecuteAndInject(const rdcstr &packageAndActi
     Android::adbExecCommand(m_deviceID,
                             StringFormat::Fmt("shell setprop debug.rdoc.RENDERDOC_CAPOPTS %s",
                                               opts.EncodeAsString().c_str()));
+
+
+    //convert environment variables to our property
+    for(auto it = env.begin(); it != env.end(); ++it)
+    {
+      if(it->mod == EnvMod::Set)
+      {
+        Android::adbExecCommand(m_deviceID, StringFormat::Fmt("shell setprop debug.rdoc.%s %s",
+                                                              it->name.c_str(), it->value.c_str()));
+      }
+    }
 
     // try to push our settings file into the appdata folder
     Android::adbExecCommand(m_deviceID, "push \"" + FileIO::GetAppFolderFilename("renderdoc.conf") +

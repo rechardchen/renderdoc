@@ -226,6 +226,7 @@ rdcwstr UTF82Wide(const rdcstr &s)
 void Shutdown()
 {
 }
+
 };
 
 namespace OSUtility
